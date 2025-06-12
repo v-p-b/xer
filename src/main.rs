@@ -1,5 +1,7 @@
 mod parser;
+mod writer;
 pub use crate::parser::hex_parser::*;
+pub use crate::writer::writer::*;
 
 use clap::{
     Parser as ClapParser,
@@ -7,8 +9,10 @@ use clap::{
 };
 
 use std::fs;
+use std::fs::File;
 use std::io;
 use std::io::prelude::*;
+
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 enum Format{
@@ -26,29 +30,24 @@ enum Format{
 #[command(version, about, long_about = None)]
 struct Args {
     /// Input format specifier
-    #[arg(value_enum)]
+    #[arg(short, long)]
     from: Option<Format>,
 
     /// Output format specifier
-    #[arg(value_enum)]
+    #[arg(short, long)]
     to: Option<Format>,
 
-    /// Input file
+    /// Input file (default: stdin)
     #[arg(short, long)]
     input: Option<String>,
 
-    // Output file
-    //#[arg(short, long)]
-    //output: Option<String>,
+    /// Output file (default: stdout)
+    #[arg(short, long)]
+    output: Option<String>,
 
 
 }
 
-pub fn write_0x_hex(v: Vec<u8>){
-    for b in v.iter() {
-        println!("{} - ", b);
-    }    
-}
 
 fn main() {
     let args = Args::parse();
@@ -65,10 +64,20 @@ fn main() {
             }
         };
     
+    let printer = match args.to {
+        Some(Format::Escaped) => write_esc_hex,
+        Some(Format::Hex) => write_hex,
+        Some(Format::Raw) => write_raw,
+        _ => write_0x_hex,
+    };
 
     let Ok((_, data)) = hex_any_seq(&input) else {panic!("Couldn't process input!")};
-    write_0x_hex(data);
+
+    let mut out_writer = match args.output {
+        Some(fname) => Box::new(File::create(fname).unwrap()) as Box<dyn Write>,
+        _ => Box::new(io::stdout()) as Box<dyn Write>
+    };
+    printer(data, &mut out_writer);
+
 }
-
-
 
