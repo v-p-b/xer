@@ -3,19 +3,15 @@ mod writer;
 pub use crate::parser::*;
 pub use crate::writer::*;
 
-use clap::{
-    Parser as ClapParser,
-    ValueEnum
-};
+use clap::{Parser as ClapParser, ValueEnum};
 
 use std::fs;
 use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 
-
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-enum Format{
+enum Format {
     /// 2-digit hex encoding, optionally separated by whitespace
     Hex,
     /// \\xHH encoding, no separator
@@ -46,22 +42,21 @@ struct Args {
     output: Option<String>,
 }
 
-
 fn main() {
     let args = Args::parse();
-    let input :String = match args.input {
+    let input: String = match args.input {
         Some(fname) => fs::read_to_string(fname).expect("Invalid input filename"),
         None => {
-                let mut inbuf=Vec::new();
-                let mut stdin=io::stdin();
-                let _ = stdin.read_to_end(&mut inbuf);
-                match str::from_utf8(&inbuf) {
-                    Ok(v) => v.to_string(),
-                    Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-                }    
+            let mut inbuf = Vec::new();
+            let mut stdin = io::stdin();
+            let _ = stdin.read_to_end(&mut inbuf);
+            match str::from_utf8(&inbuf) {
+                Ok(v) => v.to_string(),
+                Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
             }
-        };
-    
+        }
+    };
+
     let printer = match args.to {
         Some(Format::Escaped) => write_esc_hex,
         Some(Format::Hex) => write_hex,
@@ -69,13 +64,13 @@ fn main() {
         _ => write_0x_hex,
     };
 
-    let Ok((_, data)) = hex_any_seq(&input) else {panic!("Couldn't process input!")};
+    let Ok((_, data)) = hex_any_seq(&input) else {
+        panic!("Couldn't process input!")
+    };
 
     let mut out_writer = match args.output {
         Some(fname) => Box::new(File::create(fname).unwrap()) as Box<dyn Write>,
-        _ => Box::new(io::stdout()) as Box<dyn Write>
+        _ => Box::new(io::stdout()) as Box<dyn Write>,
     };
     printer(data, &mut out_writer);
-
 }
-
