@@ -22,8 +22,10 @@ jobs:
           - os_name: macOS-x86_64
             os: macOS-latest
             target: x86_64-apple-darwin
-
-            # more release targets here ...
+            
+          - os_name: Windows-x86_64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
 
     runs-on: ${{ matrix.platform.os }}
     steps:
