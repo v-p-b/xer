@@ -1,7 +1,7 @@
 [package]
 name = "xer"
 version = "0.0.1-alpha"
-edition = "2025"
+edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.40", features = ["derive"] }
