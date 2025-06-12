@@ -8,6 +8,7 @@ use std::num::ParseIntError;
 use std::vec::Vec;
 use nom::multi::{
     separated_list0,
+    many0,
 };
 use nom::character::complete::{
     multispace0,
@@ -47,9 +48,15 @@ fn hex_0x_seq(input: &str) -> IResult<&str, Vec<u8>> {
     separated_list0(c_list_separator, hex_0x_byte).parse(input)    
 }
 
+fn hex_esc_seq(input: &str) -> IResult<&str, Vec<u8>> {
+    many0(hex_esc_byte).parse(input)    
+}
+
+
 fn main() {
     assert_eq!(hex_0x_byte("0xab"), Ok(("", 0xab)));
     assert_eq!(hex_esc_byte("\\xcd"), Ok(("", 0xcd)));
     assert_eq!(hex_0x_seq("0xde,0xad,0xbe,0xef"), Ok(("", vec![0xdeu8, 0xadu8, 0xbeu8, 0xefu8])));
     assert_eq!(hex_0x_seq("0xde, 0xad ,0xbe , \n0xef"), Ok(("", vec![0xdeu8, 0xadu8, 0xbeu8, 0xefu8])));
+    assert_eq!(hex_esc_seq("\\xde\\xad\\xbe\\xef"), Ok(("", vec![0xdeu8, 0xadu8, 0xbeu8, 0xefu8])));
 }
