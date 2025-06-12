@@ -7,7 +7,8 @@ use clap::{
 };
 
 use std::fs;
-
+use std::io;
+use std::io::prelude::*;
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 enum Format{
@@ -16,7 +17,9 @@ enum Format{
     /// \\xHH encoding, no separator
     Escaped,
     /// 0xHH encoding, values separated with commas
-    C
+    C,
+    /// Raw bytes
+    Raw,
 }
 
 #[derive(ClapParser)]
@@ -32,7 +35,7 @@ struct Args {
 
     /// Input file
     #[arg(short, long)]
-    input: String,
+    input: Option<String>,
 
     // Output file
     //#[arg(short, long)]
@@ -49,7 +52,19 @@ pub fn write_0x_hex(v: Vec<u8>){
 
 fn main() {
     let args = Args::parse();
-    let input = fs::read_to_string(args.input).expect("Invalid input filename");
+    let input :String = match args.input {
+        Some(fname) => fs::read_to_string(fname).expect("Invalid input filename"),
+        None => {
+                let mut inbuf=Vec::new();
+                let mut stdin=io::stdin();
+                let _ = stdin.read_to_end(&mut inbuf);
+                match str::from_utf8(&inbuf) {
+                    Ok(v) => v.to_string(),
+                    Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+                }    
+            }
+        };
+    
 
     let Ok((_, data)) = hex_any_seq(&input) else {panic!("Couldn't process input!")};
     write_0x_hex(data);
