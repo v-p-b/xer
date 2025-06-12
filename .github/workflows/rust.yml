@@ -40,6 +40,6 @@ jobs:
       - name: Publish artifacts and release
         uses: houseabsolute/actions-rust-release@v0
         with:
-          executable-name: ubi
+          executable-name: xer
           target: ${{ matrix.platform.target }}
         if: matrix.toolchain == 'stable'
