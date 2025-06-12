@@ -56,6 +56,13 @@ fn main() {
             }
         }
     }else{
+        let xer_parser = match args.from {
+            Some(Format::Escaped) => hex_esc_seq,
+            Some(Format::Hex) => hex_seq,
+            Some(Format::C) => hex_0x_seq,
+            _ => hex_any_seq
+        };
+
         let input: String = match args.input {
             Some(fname) => fs::read_to_string(fname).expect("Invalid input filename"),
             None => {
@@ -68,7 +75,7 @@ fn main() {
                 }
             }
         };
-        let Ok((_, data)) = hex_any_seq(&input) else {
+        let Ok((_, data)) = xer_parser(&input) else {
             panic!("Couldn't process input!")
         };
         data
