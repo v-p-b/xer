@@ -44,19 +44,35 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    let input: String = match args.input {
-        Some(fname) => fs::read_to_string(fname).expect("Invalid input filename"),
-        None => {
-            let mut inbuf = Vec::new();
-            let mut stdin = io::stdin();
-            let _ = stdin.read_to_end(&mut inbuf);
-            match str::from_utf8(&inbuf) {
-                Ok(v) => v.to_string(),
-                Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+
+    let data = if let Some(Format::Raw) = args.from{
+        match args.input {
+            Some(fname) => fs::read(fname).expect("Invalid input filename"), // Vec<u8>
+            None => {
+                let mut inbuf = Vec::new();
+                let mut stdin = io::stdin();
+                let _ = stdin.read(&mut inbuf);
+                inbuf
             }
         }
+    }else{
+        let input: String = match args.input {
+            Some(fname) => fs::read_to_string(fname).expect("Invalid input filename"),
+            None => {
+                let mut inbuf = Vec::new();
+                let mut stdin = io::stdin();
+                let _ = stdin.read_to_end(&mut inbuf);
+                match str::from_utf8(&inbuf) {
+                    Ok(v) => v.to_string(),
+                    Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+                }
+            }
+        };
+        let Ok((_, data)) = hex_any_seq(&input) else {
+            panic!("Couldn't process input!")
+        };
+        data
     };
-
     let printer = match args.to {
         Some(Format::Escaped) => write_esc_hex,
         Some(Format::Hex) => write_hex,
@@ -64,10 +80,8 @@ fn main() {
         _ => write_0x_hex,
     };
 
-    let Ok((_, data)) = hex_any_seq(&input) else {
-        panic!("Couldn't process input!")
-    };
 
+    // https://stackoverflow.com/questions/22355273/writing-to-a-file-or-stdout-in-rust
     let mut out_writer = match args.output {
         Some(fname) => Box::new(File::create(fname).unwrap()) as Box<dyn Write>,
         _ => Box::new(io::stdout()) as Box<dyn Write>,
