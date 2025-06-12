@@ -1,7 +1,7 @@
 mod parser;
 mod writer;
-pub use crate::parser::hex_parser::*;
-pub use crate::writer::writer::*;
+pub use crate::parser::*;
+pub use crate::writer::*;
 
 use clap::{
     Parser as ClapParser,
@@ -44,8 +44,6 @@ struct Args {
     /// Output file (default: stdout)
     #[arg(short, long)]
     output: Option<String>,
-
-
 }
 
 
