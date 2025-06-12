@@ -5,6 +5,14 @@ use nom::{
 };
 
 use std::num::ParseIntError;
+use std::vec::Vec;
+use nom::multi::{
+    separated_list0,
+};
+use nom::character::complete::{
+    multispace0,
+    char,
+};
 
 fn from_hex(input: &str) -> Result<u8, ParseIntError> {
   u8::from_str_radix(input, 16)
@@ -25,6 +33,23 @@ fn hex_0x_byte(input: &str) -> IResult<&str, u8> {
     Ok((input, res))
 }
 
+fn hex_esc_byte(input: &str) -> IResult<&str, u8> {
+    let (input, _) = (tag("\\x")).parse(input)?;
+    let (input, res) = hex_byte(input)?;
+    Ok((input, res))
+}
+
+fn c_list_separator(input: &str) -> IResult<&str, (&str, char, &str)> {
+    (multispace0, char(','), multispace0).parse(input)
+}
+
+fn hex_0x_seq(input: &str) -> IResult<&str, Vec<u8>> {
+    separated_list0(c_list_separator, hex_0x_byte).parse(input)    
+}
+
 fn main() {
     assert_eq!(hex_0x_byte("0xab"), Ok(("", 0xab)));
+    assert_eq!(hex_esc_byte("\\xcd"), Ok(("", 0xcd)));
+    assert_eq!(hex_0x_seq("0xde,0xad,0xbe,0xef"), Ok(("", vec![0xdeu8, 0xadu8, 0xbeu8, 0xefu8])));
+    assert_eq!(hex_0x_seq("0xde, 0xad ,0xbe , \n0xef"), Ok(("", vec![0xdeu8, 0xadu8, 0xbeu8, 0xefu8])));
 }
