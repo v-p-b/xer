@@ -14,8 +14,8 @@ fn hex_byte(input: &str) -> IResult<&str, u8> {
     let (input, digits) = take(2usize)(input)?;
     let res = from_hex(digits);
     match res {
-        Ok(res) => return Ok((input,res)),
-        Err(_) => return Err(nom::Err::Error(nom::error::Error{input: input, code: nom::error::ErrorKind::HexDigit}))
+        Ok(res) => Ok((input,res)),
+        Err(_) => Err(nom::Err::Error(nom::error::Error{input, code: nom::error::ErrorKind::HexDigit}))
     }
 }
 
