@@ -45,4 +45,3 @@ jobs:
         with:
           executable-name: xer
           target: ${{ matrix.platform.target }}
-        if: matrix.toolchain == 'stable'
