@@ -1,62 +1,59 @@
-use nom::{
-  IResult,
-  Parser,
-  bytes::complete::{tag, take},
+mod parser;
+pub use crate::parser::hex_parser::*;
+
+use clap::{
+    Parser as ClapParser,
+    ValueEnum
 };
 
-use std::num::ParseIntError;
-use std::vec::Vec;
-use nom::multi::{
-    separated_list0,
-    many0,
-};
-use nom::character::complete::{
-    multispace0,
-    char,
-};
+use std::fs;
 
-fn from_hex(input: &str) -> Result<u8, ParseIntError> {
-  u8::from_str_radix(input, 16)
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+enum Format{
+    /// 2-digit hex encoding, optionally separated by whitespace
+    Hex,
+    /// \\xHH encoding, no separator
+    Escaped,
+    /// 0xHH encoding, values separated with commas
+    C
 }
 
-fn hex_byte(input: &str) -> IResult<&str, u8> {
-    let (input, digits) = take(2usize)(input)?;
-    let res = from_hex(digits);
-    match res {
-        Ok(res) => Ok((input,res)),
-        Err(_) => Err(nom::Err::Error(nom::error::Error{input, code: nom::error::ErrorKind::HexDigit}))
-    }
+#[derive(ClapParser)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Input format specifier
+    #[arg(value_enum)]
+    from: Option<Format>,
+
+    /// Output format specifier
+    #[arg(value_enum)]
+    to: Option<Format>,
+
+    /// Input file
+    #[arg(short, long)]
+    input: String,
+
+    // Output file
+    //#[arg(short, long)]
+    //output: Option<String>,
+
+
 }
 
-fn hex_0x_byte(input: &str) -> IResult<&str, u8> {
-    let (input, _) = (tag("0x")).parse(input)?;
-    let (input, res) = hex_byte(input)?;
-    Ok((input, res))
+pub fn write_0x_hex(v: Vec<u8>){
+    for b in v.iter() {
+        println!("{} - ", b);
+    }    
 }
-
-fn hex_esc_byte(input: &str) -> IResult<&str, u8> {
-    let (input, _) = (tag("\\x")).parse(input)?;
-    let (input, res) = hex_byte(input)?;
-    Ok((input, res))
-}
-
-fn c_list_separator(input: &str) -> IResult<&str, (&str, char, &str)> {
-    (multispace0, char(','), multispace0).parse(input)
-}
-
-fn hex_0x_seq(input: &str) -> IResult<&str, Vec<u8>> {
-    separated_list0(c_list_separator, hex_0x_byte).parse(input)    
-}
-
-fn hex_esc_seq(input: &str) -> IResult<&str, Vec<u8>> {
-    many0(hex_esc_byte).parse(input)    
-}
-
 
 fn main() {
-    assert_eq!(hex_0x_byte("0xab"), Ok(("", 0xab)));
-    assert_eq!(hex_esc_byte("\\xcd"), Ok(("", 0xcd)));
-    assert_eq!(hex_0x_seq("0xde,0xad,0xbe,0xef"), Ok(("", vec![0xdeu8, 0xadu8, 0xbeu8, 0xefu8])));
-    assert_eq!(hex_0x_seq("0xde, 0xad ,0xbe , \n0xef"), Ok(("", vec![0xdeu8, 0xadu8, 0xbeu8, 0xefu8])));
-    assert_eq!(hex_esc_seq("\\xde\\xad\\xbe\\xef"), Ok(("", vec![0xdeu8, 0xadu8, 0xbeu8, 0xefu8])));
+    let args = Args::parse();
+    let input = fs::read_to_string(args.input).expect("Invalid input filename");
+
+    let Ok((_, data)) = hex_any_seq(&input) else {panic!("Couldn't process input!")};
+    write_0x_hex(data);
 }
+
+
+
