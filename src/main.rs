@@ -63,7 +63,7 @@ fn main() {
             _ => hex_any_seq
         };
 
-        let input: String = match args.input {
+        let orig_input: String = match args.input {
             Some(fname) => fs::read_to_string(fname).expect("Invalid input filename"),
             None => {
                 let mut inbuf = Vec::new();
@@ -75,6 +75,7 @@ fn main() {
                 }
             }
         };
+        let input = orig_input.to_lowercase();
         let Ok((_, data)) = xer_parser(&input) else {
             panic!("Couldn't process input!")
         };
