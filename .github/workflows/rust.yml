@@ -45,4 +45,4 @@ jobs:
         with:
           executable-name: xer
           target: ${{ matrix.platform.target }}
-          changes-file: ""
+          changes-file: "Changes.md"
