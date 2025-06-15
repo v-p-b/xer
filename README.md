@@ -15,8 +15,9 @@ Options:
 
           Possible values:
           - hex:     2-digit hex encoding, optionally separated by whitespace
-          - escaped: \\xHH encoding, no separator
-          - c:       0xHH encoding, values separated with commas
+          - escaped: \xHH encoding, no separator
+          - c:       0xHH encoding, values separated with commas and whitespace
+          - bin:     0bBBBBBBBB encoded binary, values separated with commas and whitespace
           - raw:     Raw bytes
 
   -t, --to <TO>
@@ -24,8 +25,9 @@ Options:
 
           Possible values:
           - hex:     2-digit hex encoding, optionally separated by whitespace
-          - escaped: \\xHH encoding, no separator
-          - c:       0xHH encoding, values separated with commas
+          - escaped: \xHH encoding, no separator
+          - c:       0xHH encoding, values separated with commas and whitespace
+          - bin:     0bBBBBBBBB encoded binary, values separated with commas and whitespace
           - raw:     Raw bytes
 
   -i, --input <INPUT>
@@ -53,4 +55,5 @@ The default output format is C (e.g. `0xde,0xad,0xbe,0ef`). Output serialization
 * Signed values (as you know, three billion devices run Java)
 * More formats (PR's welcome)
 * More tests
+
 
