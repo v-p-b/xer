@@ -109,5 +109,10 @@ mod tests {
             hex_seq("dead  be ef "),
             Ok((" ", vec![0xdeu8, 0xadu8, 0xbeu8, 0xefu8]))
         );
+        assert_eq!(
+            bin_0b_seq("0b10101010 , 0b10111011,\r\n0b10101010 ,0b10111011"),
+            Ok(("", vec![0xaau8, 0xbbu8, 0xaau8, 0xbbu8]))
+        );
+
     }
 }
