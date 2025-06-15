@@ -31,7 +31,7 @@ pub fn write_bin(v: Vec<u8>, stream: &mut impl Write) {
     for b in v.iter() {
         str_vec.push(format!("0b{b:08b}"))
     }
-    let _ = stream.write_all(str_vec.join(" ").as_bytes());
+    let _ = stream.write_all(str_vec.join(",").as_bytes());
 }
 
 
