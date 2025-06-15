@@ -14,6 +14,10 @@ pub fn from_hex(input: &str) -> Result<u8, ParseIntError> {
     u8::from_str_radix(input, 16)
 }
 
+pub fn from_bin(input: &str) -> Result<u8, ParseIntError> {
+    u8::from_str_radix(input, 2)
+}
+
 pub fn hex_byte(input: &str) -> IResult<&str, u8> {
     let (input, digits) = take(2usize)(input)?;
     let res = from_hex(digits);
@@ -26,11 +30,30 @@ pub fn hex_byte(input: &str) -> IResult<&str, u8> {
     }
 }
 
+pub fn bin_byte(input: &str) -> IResult<&str, u8> {
+    let (input, digits) = take(8usize)(input)?;
+    let res = from_bin(digits);
+    match res {
+        Ok(res) => Ok((input, res)),
+        Err(_) => Err(nom::Err::Error(nom::error::Error {
+            input,
+            code: nom::error::ErrorKind::Digit,
+        })),
+    }
+}
+
 pub fn hex_0x_byte(input: &str) -> IResult<&str, u8> {
     let (input, _) = (tag("0x")).parse(input)?;
     let (input, res) = hex_byte(input)?;
     Ok((input, res))
 }
+
+pub fn bin_0b_byte(input: &str) -> IResult<&str, u8> {
+    let (input, _) = (tag("0b")).parse(input)?;
+    let (input, res) = bin_byte(input)?;
+    Ok((input, res))
+}
+
 
 pub fn hex_esc_byte(input: &str) -> IResult<&str, u8> {
     let (input, _) = (tag("\\x")).parse(input)?;
@@ -46,6 +69,10 @@ pub fn hex_0x_seq(input: &str) -> IResult<&str, Vec<u8>> {
     separated_list1(c_list_separator, hex_0x_byte).parse(input)
 }
 
+pub fn bin_0b_seq(input: &str) -> IResult<&str, Vec<u8>> {
+    separated_list1(c_list_separator, bin_0b_byte).parse(input)
+}
+
 pub fn hex_esc_seq(input: &str) -> IResult<&str, Vec<u8>> {
     many1(hex_esc_byte).parse(input)
 }
@@ -54,8 +81,8 @@ pub fn hex_seq(input: &str) -> IResult<&str, Vec<u8>> {
     separated_list1(multispace0, hex_byte).parse(input)
 }
 
-pub fn hex_any_seq(input: &str) -> IResult<&str, Vec<u8>> {
-    alt((hex_esc_seq, hex_0x_seq, hex_seq)).parse(input)
+pub fn any_seq(input: &str) -> IResult<&str, Vec<u8>> {
+    alt((bin_0b_seq, hex_esc_seq, hex_0x_seq, hex_seq)).parse(input)
 }
 
 #[cfg(test)]

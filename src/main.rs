@@ -14,10 +14,12 @@ use std::io::prelude::*;
 enum Format {
     /// 2-digit hex encoding, optionally separated by whitespace
     Hex,
-    /// \\xHH encoding, no separator
+    /// \xHH encoding, no separator
     Escaped,
-    /// 0xHH encoding, values separated with commas
+    /// 0xHH encoding, values separated with commas and whitespace
     C,
+    /// 0bBBBBBBBB encoded binary, values separated with commas and whitespace
+    Bin, 
     /// Raw bytes
     Raw,
 }
@@ -60,7 +62,8 @@ fn main() {
             Some(Format::Escaped) => hex_esc_seq,
             Some(Format::Hex) => hex_seq,
             Some(Format::C) => hex_0x_seq,
-            _ => hex_any_seq
+            Some(Format::Bin) => bin_0b_seq,
+            _ => any_seq
         };
 
         let orig_input: String = match args.input {
@@ -84,6 +87,7 @@ fn main() {
     let printer = match args.to {
         Some(Format::Escaped) => write_esc_hex,
         Some(Format::Hex) => write_hex,
+        Some(Format::Bin) => write_bin,
         Some(Format::Raw) => write_raw,
         _ => write_0x_hex,
     };
