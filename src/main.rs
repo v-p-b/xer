@@ -22,6 +22,10 @@ enum Format {
     Java,
     /// 0bBBBBBBBB encoded binary, values separated with commas and whitespace
     Bin, 
+    /// Decimal
+    Dec,
+    /// Signed Decimal
+    SDec,
     /// Raw bytes
     Raw,
 }
@@ -64,6 +68,9 @@ fn main() {
             Some(Format::Escaped) => hex_esc_seq,
             Some(Format::Hex) => hex_seq,
             Some(Format::C) => hex_0x_seq,
+            Some(Format::Java) => hex_signed_seq,
+            Some(Format::SDec) => dec_signed_seq,
+            Some(Format::Dec) => dec_seq,
             Some(Format::Bin) => bin_0b_seq,
             _ => any_seq
         };
@@ -91,6 +98,8 @@ fn main() {
         Some(Format::Hex) => write_hex,
         Some(Format::Bin) => write_bin,
         Some(Format::Java) => write_signed_0x_hex,
+        Some(Format::SDec) => write_signed_dec,
+        Some(Format::Dec) => write_dec,
         Some(Format::Raw) => write_raw,
         _ => write_0x_hex,
     };
