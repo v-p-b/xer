@@ -3,7 +3,7 @@ use nom::{
     bytes::complete::{tag, take},
 };
 
-use nom::character::complete::{char, multispace0, digit1};
+use nom::character::complete::{char, digit1, multispace0};
 use nom::multi::{many1, separated_list1};
 use std::num::ParseIntError;
 use std::vec::Vec;
@@ -61,7 +61,6 @@ pub fn dec_negative_byte(input: &str) -> IResult<&str, u8> {
 pub fn dec_signed_byte(input: &str) -> IResult<&str, u8> {
     alt((dec_byte, dec_negative_byte)).parse(input)
 }
-
 
 pub fn bin_byte(input: &str) -> IResult<&str, u8> {
     let (input, digits) = take(8usize)(input)?;
@@ -123,21 +122,29 @@ pub fn hex_seq(input: &str) -> IResult<&str, Vec<u8>> {
     separated_list1(multispace0, hex_byte).parse(input)
 }
 
-pub fn hex_signed_seq(input:&str) -> IResult<&str, Vec<u8>> {
+pub fn hex_signed_seq(input: &str) -> IResult<&str, Vec<u8>> {
     separated_list1(c_list_separator, hex_signed_0x_byte).parse(input)
 }
 
-pub fn dec_seq(input:&str) -> IResult<&str, Vec<u8>> {
+pub fn dec_seq(input: &str) -> IResult<&str, Vec<u8>> {
     separated_list1(c_list_separator, dec_byte).parse(input)
 }
 
-pub fn dec_signed_seq(input:&str) -> IResult<&str, Vec<u8>> {
+pub fn dec_signed_seq(input: &str) -> IResult<&str, Vec<u8>> {
     separated_list1(c_list_separator, dec_signed_byte).parse(input)
 }
 
-
 pub fn any_seq(input: &str) -> IResult<&str, Vec<u8>> {
-    alt((bin_0b_seq,  hex_esc_seq, hex_0x_seq, hex_signed_seq, hex_seq,dec_seq, dec_signed_seq)).parse(input)
+    alt((
+        bin_0b_seq,
+        hex_esc_seq,
+        hex_0x_seq,
+        hex_signed_seq,
+        hex_seq,
+        dec_seq,
+        dec_signed_seq,
+    ))
+    .parse(input)
 }
 
 #[cfg(test)]
@@ -180,7 +187,6 @@ mod tests {
             dec_signed_seq("-1,1,-127,128"),
             Ok(("", vec![0xffu8, 0x01u8, 0x81u8, 0x80u8]))
         );
-
     }
     #[test]
     fn parser_selector_tests() {
@@ -216,7 +222,5 @@ mod tests {
             any_seq("-1,1,-127,128"),
             Ok(("", vec![0xffu8, 0x01u8, 0x81u8, 0x80u8]))
         );
-
     }
-
 }

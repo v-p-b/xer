@@ -21,7 +21,7 @@ enum Format {
     /// 0xHH encoding, with optional negative sign, values separated with commas and whitespace
     Java,
     /// 0bBBBBBBBB encoded binary, values separated with commas and whitespace
-    Bin, 
+    Bin,
     /// Decimal
     Dec,
     /// Signed Decimal
@@ -53,7 +53,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let data = if let Some(Format::Raw) = args.from{
+    let data = if let Some(Format::Raw) = args.from {
         match args.input {
             Some(fname) => fs::read(fname).expect("Invalid input filename"), // Vec<u8>
             None => {
@@ -63,7 +63,7 @@ fn main() {
                 inbuf
             }
         }
-    }else{
+    } else {
         let xer_parser = match args.from {
             Some(Format::Escaped) => hex_esc_seq,
             Some(Format::Hex) => hex_seq,
@@ -72,7 +72,7 @@ fn main() {
             Some(Format::SDec) => dec_signed_seq,
             Some(Format::Dec) => dec_seq,
             Some(Format::Bin) => bin_0b_seq,
-            _ => any_seq
+            _ => any_seq,
         };
 
         let orig_input: String = match args.input {
@@ -103,7 +103,6 @@ fn main() {
         Some(Format::Raw) => write_raw,
         _ => write_0x_hex,
     };
-
 
     // https://stackoverflow.com/questions/22355273/writing-to-a-file-or-stdout-in-rust
     let mut out_writer = match args.output {
