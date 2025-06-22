@@ -48,6 +48,18 @@ pub fn hex_0x_byte(input: &str) -> IResult<&str, u8> {
     Ok((input, res))
 }
 
+pub fn hex_negative_0x_byte(input: &str) -> IResult<&str, u8> {
+    let (input, _) = (tag("-")).parse(input)?;
+    let (input, res) = hex_0x_byte(input)?;
+    let mut twos = !res + 1;
+    twos |= 1 << 7;
+    Ok((input, twos))
+}
+
+pub fn hex_signed_0x_byte(input: &str) -> IResult<&str, u8> {
+    alt((hex_negative_0x_byte, hex_0x_byte)).parse(input)
+}
+
 pub fn bin_0b_byte(input: &str) -> IResult<&str, u8> {
     let (input, _) = (tag("0b")).parse(input)?;
     let (input, res) = bin_byte(input)?;
@@ -81,8 +93,12 @@ pub fn hex_seq(input: &str) -> IResult<&str, Vec<u8>> {
     separated_list1(multispace0, hex_byte).parse(input)
 }
 
+pub fn hex_signed_seq(input:&str) -> IResult<&str, Vec<u8>> {
+    separated_list1(c_list_separator, hex_signed_0x_byte).parse(input)
+}
+
 pub fn any_seq(input: &str) -> IResult<&str, Vec<u8>> {
-    alt((bin_0b_seq, hex_esc_seq, hex_0x_seq, hex_seq)).parse(input)
+    alt((bin_0b_seq, hex_esc_seq, hex_0x_seq, hex_signed_seq, hex_seq)).parse(input)
 }
 
 #[cfg(test)]
@@ -112,6 +128,10 @@ mod tests {
         assert_eq!(
             bin_0b_seq("0b10101010 , 0b10111011,\r\n0b10101010 ,0b10111011"),
             Ok(("", vec![0xaau8, 0xbbu8, 0xaau8, 0xbbu8]))
+        );
+        assert_eq!(
+            hex_signed_seq("-0x01,0x80,-0x03,-0x80"),
+            Ok(("", vec![0xffu8, 0x80u8, 0xfdu8, 0x80u8]))
         );
 
     }

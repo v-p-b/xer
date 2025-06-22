@@ -18,6 +18,8 @@ enum Format {
     Escaped,
     /// 0xHH encoding, values separated with commas and whitespace
     C,
+    /// 0xHH encoding, with optional negative sign, values separated with commas and whitespace
+    Java,
     /// 0bBBBBBBBB encoded binary, values separated with commas and whitespace
     Bin, 
     /// Raw bytes
@@ -88,6 +90,7 @@ fn main() {
         Some(Format::Escaped) => write_esc_hex,
         Some(Format::Hex) => write_hex,
         Some(Format::Bin) => write_bin,
+        Some(Format::Java) => write_signed_0x_hex,
         Some(Format::Raw) => write_raw,
         _ => write_0x_hex,
     };
