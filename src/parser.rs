@@ -23,9 +23,7 @@ pub fn from_dec(input: &str) -> Result<u8, ParseIntError> {
 }
 
 fn twos(b: u8) -> u8 {
-    let mut twos = !b + 1;
-    twos |= 1 << 7;
-    twos
+    !b + 1
 }
 
 pub fn hex_byte(input: &str) -> IResult<&str, u8> {
