@@ -141,8 +141,8 @@ pub fn any_seq(input: &str) -> IResult<&str, Vec<u8>> {
         hex_0x_seq,
         hex_signed_seq,
         hex_seq,
-        dec_seq,
-        dec_signed_seq,
+        dec_seq,        // Not prefixed, must be at the end
+        dec_signed_seq, // Not prefixed, handles signs
     ))
     .parse(input)
 }
