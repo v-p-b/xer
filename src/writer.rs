@@ -1,8 +1,6 @@
 use std::io::Write;
 
-fn twos(b: u8) -> u8 {
-    !b + 1
-}
+use crate::util::*;
 
 pub fn write_0x_hex(v: Vec<u8>, stream: &mut impl Write) {
     let mut str_vec = Vec::new();

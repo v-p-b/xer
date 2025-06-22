@@ -3,12 +3,13 @@ use nom::{
     bytes::complete::{tag, take},
 };
 
+use nom::branch::alt;
 use nom::character::complete::{char, digit1, multispace0};
 use nom::multi::{many1, separated_list1};
 use std::num::ParseIntError;
 use std::vec::Vec;
 
-use nom::branch::alt;
+use crate::util::*;
 
 pub fn from_hex(input: &str) -> Result<u8, ParseIntError> {
     u8::from_str_radix(input, 16)
@@ -20,10 +21,6 @@ pub fn from_bin(input: &str) -> Result<u8, ParseIntError> {
 
 pub fn from_dec(input: &str) -> Result<u8, ParseIntError> {
     u8::from_str_radix(input, 10)
-}
-
-fn twos(b: u8) -> u8 {
-    !b + 1
 }
 
 pub fn hex_byte(input: &str) -> IResult<&str, u8> {
