@@ -2,6 +2,11 @@
 name = "xer"
 version = "0.0.5-alpha"
 edition = "2024"
+description = "Byte stream conversion swiss army knife"
+license = "GPL-3.0"
+homepage = "https://github.com/v-p-b/xer"
+repository = "https://github.com/v-p-b/xer"
+readme = "README.md"
 
 [dependencies]
 clap = { version = "4.5.40", features = ["derive"] }
