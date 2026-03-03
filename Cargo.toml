@@ -1,6 +1,6 @@
 [package]
 name = "xer"
-version = "0.0.5-alpha"
+version = "0.0.6"
 edition = "2024"
 description = "Byte stream conversion swiss army knife"
 license = "GPL-3.0"

@@ -54,13 +54,13 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let data = if let Some(Format::Raw) = args.from {
+    let data = if Some(Format::Raw) == args.from {
         match args.input {
             Some(fname) => fs::read(fname).expect("Invalid input filename"), // Vec<u8>
             None => {
                 let mut inbuf = Vec::new();
                 let mut stdin = io::stdin();
-                let _ = stdin.read(&mut inbuf);
+                let _ = stdin.read_to_end(&mut inbuf).expect("Can't read from stdin");
                 inbuf
             }
         }
