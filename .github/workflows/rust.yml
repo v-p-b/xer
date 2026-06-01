@@ -10,11 +10,13 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  GITHUB_TOKEN: ${{ secrets.XER_RELEASER }}
+  #GITHUB_TOKEN: ${{ secrets.XER_RELEASER }}
 
 jobs:
   release:
     name: Release - ${{ matrix.platform.release_for }}
+    permissions: 
+      contents: write
     strategy:
       matrix:
         platform:
